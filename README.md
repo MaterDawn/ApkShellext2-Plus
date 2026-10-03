@@ -14,6 +14,14 @@ A Windows Explorer shell extension that shows **real app icons** (instead of gen
 
 **ApkShellext2-Plus** is an enhanced fork of [ApkShellext2](https://github.com/kkguo/apkshellext) (MIT), hardened for real-world packages that break the original build.
 
+### Screenshots
+
+Real icons rendered in Windows Explorer:
+
+| Android `.apk` | iOS `.ipa` / `.tipa` | HarmonyOS `.hap` |
+|:---:|:---:|:---:|
+| ![apk](docs/screenshots-apk.png) | ![ipa](docs/screenshots-ipa.png) | ![hap](docs/screenshots-hap.png) |
+
 ### What's enhanced over upstream
 
 | Area | Enhancement |
@@ -68,6 +76,14 @@ MIT — see [LICENSE](LICENSE). Third-party libraries keep their own licenses in
 - `.appx` / `.appxbundle` — Windows 8.1/10 UWP 应用包
 
 本项目是 [ApkShellext2](https://github.com/kkguo/apkshellext)（MIT）的增强分支，重点修复了现实世界中各类"毒包"（加固壳、混淆包、split APK、非常规 IPA）导致原图标失效的问题。
+
+### 效果截图
+
+资源管理器中的真实图标渲染效果：
+
+| 安卓 `.apk` | iOS `.ipa` / `.tipa` | 鸿蒙 `.hap` |
+|:---:|:---:|:---:|
+| ![apk](docs/screenshots-apk.png) | ![ipa](docs/screenshots-ipa.png) | ![hap](docs/screenshots-hap.png) |
 
 ### 相对上游的主要增强
 
