@@ -18,6 +18,7 @@ namespace ApkShellext2 {
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".apk")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".1")]
     public class ApkThumbnailHandler : SharpThumbnailHandler {
         protected override Bitmap GetThumbnailImage(uint width) {
             Bitmap m_icon = null;

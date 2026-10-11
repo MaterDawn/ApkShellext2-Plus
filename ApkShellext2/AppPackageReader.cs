@@ -16,6 +16,8 @@ namespace ApkShellext2 {
     /// </summary>
     public class AppPackageReader : IDisposable{
         public const string extAPK = ".apk";
+        // QQ/微信等传输工具可能把 APK 改名为 .1；必须嗅探内容，不能把所有 .1 盲目当 APK。
+        public const string extTRANSFER = ".1";
         public const string extIPA = ".ipa";
         // .tipa = TrollStore IPA 包（iOS），容器结构与 .ipa 完全一致，按 iOSApp 处理
         public const string extTIPA = ".tipa";
@@ -105,11 +107,44 @@ namespace ApkShellext2 {
             disposed = true;
         }
 
+        /// <summary>
+        /// 检查 .1 是否真的是 APK。只读 ZIP 目录并要求 AndroidManifest.xml；
+        /// classes.dex/resources.arsc 用作辅助信号。非 APK .1 不接管。
+        /// </summary>
+        public static bool IsTransferredApk(string path) {
+            if (!File.Exists(path)) return false;
+            try {
+                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete))
+                using (ICSharpCode.SharpZipLib.Zip.ZipFile zip = new ICSharpCode.SharpZipLib.Zip.ZipFile(stream)) {
+                    bool manifest = false, dex = false, resources = false;
+                    foreach (ICSharpCode.SharpZipLib.Zip.ZipEntry entry in zip) {
+                        if (entry == null || entry.Name == null) continue;
+                        if (string.Equals(entry.Name, "AndroidManifest.xml", StringComparison.OrdinalIgnoreCase))
+                            manifest = true;
+                        else if (string.Equals(entry.Name, "classes.dex", StringComparison.OrdinalIgnoreCase))
+                            dex = true;
+                        else if (string.Equals(entry.Name, "resources.arsc", StringComparison.OrdinalIgnoreCase))
+                            resources = true;
+                        if (manifest && (dex || resources)) return true;
+                    }
+                    return manifest;
+                }
+            } catch {
+                return false;
+            }
+        }
+
+        public static bool IsAndroidPackagePath(string path) {
+            string suffix = Path.GetExtension(path).ToLowerInvariant();
+            return suffix == extAPK || (suffix == extTRANSFER && IsTransferredApk(path));
+        }
+
         public static AppType getAppType(string path) {
             // FIX: 扩展名必须大小写不敏感（Windows 上 .APK/.IPA 很常见），
             // 旧实现用 == 直接比较，遇到 .APK 直接抛 NotSupportedException，图标完全不显示。
             string suffix = Path.GetExtension(path).ToLowerInvariant();
-            if (suffix == extAPK) {
+            if (suffix == extAPK || (suffix == extTRANSFER && IsTransferredApk(path))) {
                 return AppType.AndroidApp;
             } else if (suffix == extIPA || suffix == extTIPA) {
                 return AppType.iOSApp;

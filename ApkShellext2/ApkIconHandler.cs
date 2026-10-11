@@ -22,6 +22,7 @@ namespace ApkShellext2 {
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".apk")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".1")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".ipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".tipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".hap")]
@@ -32,6 +33,9 @@ namespace ApkShellext2 {
         protected override Icon GetIcon(bool smallIcon, uint iconSize) {
             if (m_icon == null) {
                 try {
+                    if (Path.GetExtension(SelectedItemPath).Equals(AppPackageReader.extTRANSFER,
+                        StringComparison.OrdinalIgnoreCase) && !AppPackageReader.IsTransferredApk(SelectedItemPath))
+                        return null;
                     using (AppPackageReader reader = AppPackageReader.Read(SelectedItemPath)) {
                         if (reader.Type == AppPackageReader.AppType.iOSApp && Utility.GetSetting("ShowIpaIcon", "True") != "True") {
                             m_icon = Utility.AppTypeIcon(reader.Type);

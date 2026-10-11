@@ -29,6 +29,7 @@ namespace ApkShellext2 {
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".apk")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".1")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".ipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".tipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".hap")]
@@ -42,6 +43,11 @@ namespace ApkShellext2 {
         ///   <c>true</c> if this instance should show a shell context menu for the specified file list; otherwise, <c>false</c>.
         /// </returns>
         protected override bool CanShowMenu() {
+            foreach (string path in SelectedItemPaths) {
+                if (Path.GetExtension(path).Equals(AppPackageReader.extTRANSFER,
+                    StringComparison.OrdinalIgnoreCase) && !AppPackageReader.IsTransferredApk(path))
+                    return false;
+            }
             return true;
         }
 
@@ -65,7 +71,9 @@ namespace ApkShellext2 {
 
             bool hasapk = false, hasipa = false, hasappx = false, hasappxbundle = false, hashap = false;
             foreach (var p in SelectedItemPaths) {
-                if (p.EndsWith(AppPackageReader.extAPK))
+                if (p.EndsWith(AppPackageReader.extAPK, StringComparison.OrdinalIgnoreCase) ||
+                    (p.EndsWith(AppPackageReader.extTRANSFER, StringComparison.OrdinalIgnoreCase) &&
+                     AppPackageReader.IsTransferredApk(p)))
                     hasapk = true;
                 if (p.EndsWith(AppPackageReader.extIPA))
                     hasipa = true;
@@ -257,9 +265,13 @@ namespace ApkShellext2 {
         private string getNewFileName(string path) {
             //bool key_RenameWithVersionCode = Settings.DefaultRenameWithVersionCode) == 1);
             string suffix = Path.GetExtension(path);
+            // QQ/微信传输 APK 常改名为 *.apk.1。经内容嗅探确认后，重命名恢复标准 .apk 后缀。
+            if (suffix.Equals(AppPackageReader.extTRANSFER, StringComparison.OrdinalIgnoreCase) &&
+                AppPackageReader.IsTransferredApk(path))
+                suffix = AppPackageReader.extAPK;
             string newFileName = "";
             string renamePattern = Utility.GetSetting("RenamePattern", NonLocalizeResources.strRenamePatternDefault);
-            bool isapk = SelectedItemPaths.ElementAt(0).EndsWith(".apk");
+            bool isapk = AppPackageReader.IsAndroidPackagePath(SelectedItemPaths.ElementAt(0));
             bool isipa = SelectedItemPaths.ElementAt(0).EndsWith(".ipa");
 
             try {

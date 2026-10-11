@@ -17,6 +17,7 @@ namespace ApkShellext2 {
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".apk")]
+    [COMServerAssociation(AssociationType.ClassOfExtension, ".1")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".ipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".tipa")]
     [COMServerAssociation(AssociationType.ClassOfExtension, ".hap")]
@@ -33,6 +34,9 @@ namespace ApkShellext2 {
         /// </returns>
         protected override string GetInfo(RequestedInfoType infoType, bool singleLine) {
             try {
+                if (Path.GetExtension(SelectedItemPath).Equals(AppPackageReader.extTRANSFER,
+                    StringComparison.OrdinalIgnoreCase) && !AppPackageReader.IsTransferredApk(SelectedItemPath))
+                    return "";
                 Utility.Localize();
                 string TipPattern = Utility.GetSetting("ToolTipPattern", NonLocalizeResources.strInfoTipDefault);
                 bool isapk = SelectedItemPath.EndsWith(".apk");
