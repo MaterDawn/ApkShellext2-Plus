@@ -2,9 +2,7 @@ use std::{collections::BTreeSet, io::Cursor, path::Path};
 
 use plist::{Dictionary, Value};
 
-use crate::{
-    safe_zip, IconData, Limits, PackageError, PackageFormat, PackageInfo, Result,
-};
+use crate::{safe_zip, IconData, Limits, PackageError, PackageFormat, PackageInfo, Result};
 
 struct IpaMeta {
     root: String,
@@ -33,7 +31,8 @@ pub(crate) fn inspect(path: &Path, limits: Limits) -> Result<PackageInfo> {
 pub(crate) fn extract_icon(path: &Path, limits: Limits) -> Result<IconData> {
     let mut archive = safe_zip::open(path, limits)?;
     let meta = read_meta(path, &mut archive, limits)?;
-    let (index, source) = resolve_icon_index(&mut archive, &meta)?.ok_or(PackageError::IconNotFound)?;
+    let (index, source) =
+        resolve_icon_index(&mut archive, &meta)?.ok_or(PackageError::IconNotFound)?;
     let bytes = safe_zip::read_index(&mut archive, index, limits)?;
     Ok(IconData {
         bytes,
@@ -59,7 +58,8 @@ fn read_meta<R: std::io::Read + std::io::Seek>(
             }
         }
     }
-    let (index, root, _) = best.ok_or_else(|| PackageError::EntryNotFound("Payload/*.app/Info.plist".into()))?;
+    let (index, root, _) =
+        best.ok_or_else(|| PackageError::EntryNotFound("Payload/*.app/Info.plist".into()))?;
     let bytes = safe_zip::read_index(archive, index, limits)?;
     let value = Value::from_reader(Cursor::new(bytes))?;
     let plist = value
@@ -75,7 +75,11 @@ fn read_meta<R: std::io::Read + std::io::Seek>(
     } else {
         PackageFormat::Ipa
     };
-    Ok(IpaMeta { root, plist, format })
+    Ok(IpaMeta {
+        root,
+        plist,
+        format,
+    })
 }
 
 fn resolve_icon_index<R: std::io::Read + std::io::Seek>(
@@ -101,7 +105,13 @@ fn resolve_icon_index<R: std::io::Read + std::io::Seek>(
         if !lower.starts_with(&root) || !is_image(&lower) {
             continue;
         }
-        let score = if lower.contains("appicon") { 0 } else if lower.contains("icon") { 1 } else { 2 };
+        let score = if lower.contains("appicon") {
+            0
+        } else if lower.contains("icon") {
+            1
+        } else {
+            2
+        };
         fallback.push((score, i, name));
     }
     fallback.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| b.2.len().cmp(&a.2.len())));
@@ -183,9 +193,14 @@ fn string(plist: &Dictionary, key: &str) -> String {
 }
 
 fn first_non_empty<const N: usize>(values: [String; N]) -> String {
-    values.into_iter().find(|v| !v.is_empty()).unwrap_or_default()
+    values
+        .into_iter()
+        .find(|v| !v.is_empty())
+        .unwrap_or_default()
 }
 
 fn is_image(name: &str) -> bool {
-    [".png", ".jpg", ".jpeg", ".webp"].iter().any(|e| name.ends_with(e))
+    [".png", ".jpg", ".jpeg", ".webp"]
+        .iter()
+        .any(|e| name.ends_with(e))
 }

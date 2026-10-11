@@ -23,7 +23,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         [command, input, output] if command == "extract-icon" => {
             let icon = extract_icon(PathBuf::from(input))?;
             fs::write(output, &icon.bytes)?;
-            eprintln!("source={} mediaType={} bytes={}", icon.source, icon.media_type, icon.bytes.len());
+            eprintln!(
+                "source={} mediaType={} bytes={}",
+                icon.source,
+                icon.media_type,
+                icon.bytes.len()
+            );
             Ok(())
         }
         _ => {
