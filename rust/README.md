@@ -11,6 +11,10 @@ Initial Rust implementation of the cross-platform package parser and CLI.
   - `CFBundleIcons`, `CFBundleIcons~ipad`, legacy icon declarations
   - Ordinal case-insensitive ZIP entry lookup
   - Raw PNG/JPEG/WebP icon extraction
+- APPX / APPXBUNDLE:
+  - `AppxManifest.xml` identity, display name and version
+  - Exact and highest-scale logo selection
+  - Nested application package selection from app bundles
 - HAP:
   - `module.json`
   - `resources.index` string and media ID maps
@@ -25,7 +29,6 @@ Initial Rust implementation of the cross-platform package parser and CLI.
 ## Not implemented yet
 
 - APK AXML / `resources.arsc` / VectorDrawable
-- APPX / APPXBUNDLE
 - Apple CgBI PNG decrushing
 - Icon decoding/resizing/conversion to PNG
 - Platform shell adapters

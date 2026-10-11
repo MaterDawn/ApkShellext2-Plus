@@ -1,3 +1,4 @@
+mod appx;
 mod error;
 mod hap;
 mod ipa;
@@ -25,6 +26,8 @@ pub fn inspect_with_limits(path: impl AsRef<Path>, limits: Limits) -> Result<Pac
     match ext.as_str() {
         "ipa" | "tipa" => ipa::inspect(path, limits),
         "hap" => hap::inspect(path, limits),
+        "appx" => appx::inspect(path, limits, false),
+        "appxbundle" => appx::inspect(path, limits, true),
         _ => Err(PackageError::UnsupportedFormat(ext)),
     }
 }
@@ -43,6 +46,8 @@ pub fn extract_icon_with_limits(path: impl AsRef<Path>, limits: Limits) -> Resul
     match ext.as_str() {
         "ipa" | "tipa" => ipa::extract_icon(path, limits),
         "hap" => hap::extract_icon(path, limits),
+        "appx" => appx::extract_icon(path, limits, false),
+        "appxbundle" => appx::extract_icon(path, limits, true),
         _ => Err(PackageError::UnsupportedFormat(ext)),
     }
 }

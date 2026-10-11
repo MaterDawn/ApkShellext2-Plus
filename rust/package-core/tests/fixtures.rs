@@ -159,3 +159,64 @@ fn rejects_missing_hap_module() {
     assert!(matches!(error, PackageError::EntryNotFound(_)));
     fs::remove_dir_all(path.parent().unwrap()).ok();
 }
+
+fn appx_manifest() -> &'static [u8] {
+    br#"<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
+  <Identity Name="MaterDawn.Sample" Publisher="CN=MaterDawn" Version="3.2.1.0" />
+  <Properties><DisplayName>Sample Appx</DisplayName><Logo>Assets\StoreLogo.png</Logo></Properties>
+  <mp:PhoneIdentity PhoneProductId="test" />
+</Package>"#
+}
+
+#[test]
+fn inspects_appx_and_selects_largest_scaled_logo() {
+    let path = temp_package("appx", "appx");
+    write_zip(
+        &path,
+        &[
+            ("AppxManifest.xml", appx_manifest()),
+            ("Assets/StoreLogo.scale-100.png", b"100"),
+            ("Assets/StoreLogo.scale-400.png", b"400"),
+        ],
+    );
+    let info = inspect(&path).unwrap();
+    assert!(matches!(info.format, PackageFormat::Appx));
+    assert_eq!(info.package_id, "MaterDawn.Sample");
+    assert_eq!(info.app_name, "Sample Appx");
+    assert_eq!(info.version_name, "3.2.1.0");
+    assert_eq!(
+        info.icon_source.as_deref(),
+        Some("Assets/StoreLogo.scale-400.png")
+    );
+    assert_eq!(extract_icon(&path).unwrap().bytes, b"400");
+    fs::remove_dir_all(path.parent().unwrap()).ok();
+}
+
+#[test]
+fn inspects_appxbundle_nested_application() {
+    let path = temp_package("appxbundle", "bundle");
+    let nested_path = temp_package("appx", "nested");
+    write_zip(
+        &nested_path,
+        &[
+            ("AppxManifest.xml", appx_manifest()),
+            ("Assets/StoreLogo.png", b"bundle-icon"),
+        ],
+    );
+    let nested = fs::read(&nested_path).unwrap();
+    let bundle_manifest = br#"<?xml version="1.0"?><Bundle><Packages><Package Type="resource" FileName="resources.appx"/><Package Type="application" FileName="main.appx"/></Packages></Bundle>"#;
+    write_zip(
+        &path,
+        &[
+            ("AppxMetadata/AppxBundleManifest.xml", bundle_manifest),
+            ("main.appx", &nested),
+        ],
+    );
+    let info = inspect(&path).unwrap();
+    assert!(matches!(info.format, PackageFormat::AppxBundle));
+    assert_eq!(info.package_id, "MaterDawn.Sample");
+    assert_eq!(extract_icon(&path).unwrap().bytes, b"bundle-icon");
+    fs::remove_dir_all(path.parent().unwrap()).ok();
+    fs::remove_dir_all(nested_path.parent().unwrap()).ok();
+}

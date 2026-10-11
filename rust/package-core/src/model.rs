@@ -6,6 +6,8 @@ pub enum PackageFormat {
     Ipa,
     Tipa,
     Hap,
+    Appx,
+    AppxBundle,
 }
 
 #[derive(Clone, Debug, Serialize)]

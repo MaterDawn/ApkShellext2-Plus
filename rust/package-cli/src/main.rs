@@ -33,8 +33,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         _ => {
             eprintln!("Usage:");
-            eprintln!("  package-icon inspect <package.ipa|tipa|hap>");
-            eprintln!("  package-icon extract-icon <package.ipa|tipa|hap> <output>");
+            eprintln!("  package-icon inspect <package.ipa|tipa|hap|appx|appxbundle>");
+            eprintln!(
+                "  package-icon extract-icon <package.ipa|tipa|hap|appx|appxbundle> <output>"
+            );
             Err("invalid arguments".into())
         }
     }

@@ -37,3 +37,10 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
       - run: cargo build --workspace --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-icon-${{ matrix.os }}
+          path: |
+            rust/target/release/package-icon
+            rust/target/release/package-icon.exe
+          if-no-files-found: error
