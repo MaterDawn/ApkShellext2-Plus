@@ -44,6 +44,10 @@ Real icons rendered in Windows Explorer:
 - Show overlay icon per app type
 - Multi-language UI (crowdin contributors)
 
+### Cross-platform plan
+
+The current implementation is Windows-specific, but its package parsers can be separated into a shared core and reused by Linux thumbnailers and macOS Quick Look extensions. See [cross-platform roadmap](docs/CROSS_PLATFORM_ROADMAP.md).
+
 ### Build
 
 Requires Visual Studio 2022 (or Build Tools) with .NET Framework 4.8 targeting pack:
@@ -98,6 +102,10 @@ MIT — see [LICENSE](LICENSE). Third-party libraries keep their own licenses in
 | 界面 | 右键"复制包名"（支持多选批量）；悬浮提示自动清理空行与空值标签 |
 | 渲染 | 非正方形源图等比缩放居中；角标叠加空引用防御 |
 | 构建 | 目标框架升级 .NET Framework 4.8；移除 protobuf 依赖；Roslyn 直接生成多语言附属程序集（无需 al.exe） |
+
+### 跨平台规划
+
+当前实现仅适配 Windows，但包解析器可以抽离成共享核心，再接入 Linux thumbnailer 与 macOS Quick Look 扩展。详细方案见[跨平台路线图](docs/CROSS_PLATFORM_ROADMAP.md)。
 
 ### 构建
 
