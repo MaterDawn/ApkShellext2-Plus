@@ -46,7 +46,30 @@ Real icons rendered in Windows Explorer:
 
 ### Cross-platform core
 
-A Rust workspace is now available under [`rust/`](rust/README.md). The first implementation supports IPA/TIPA and HAP metadata inspection plus raw icon extraction, with archive safety limits. APK/APPX and platform shell adapters remain under development. See the [cross-platform roadmap](docs/CROSS_PLATFORM_ROADMAP.md).
+A production-oriented Rust workspace is available under [`rust/`](rust/README.md). It currently supports IPA/TIPA, HAP, APPX and APPXBUNDLE metadata inspection plus raw icon extraction. APK AXML/ARSC and platform shell adapters are the next milestones. See the [cross-platform roadmap](docs/CROSS_PLATFORM_ROADMAP.md).
+
+Current verification status:
+
+- Windows, Ubuntu and macOS CI builds pass.
+- Local Windows GNU release build passes with `cargo fmt`, 7/7 tests, strict Clippy (`-D warnings`) and an end-to-end CLI check.
+- Release CLI is approximately 490 KB before APK rendering dependencies are added.
+- Archive safety limits cover entry count, per-entry size and total declared uncompressed size.
+
+```bash
+cd rust
+cargo build --release
+cargo test --workspace
+
+# Inspect metadata as JSON
+package-icon inspect example.ipa
+package-icon inspect example.hap
+package-icon inspect example.appx
+
+# Preserve and extract the package's original icon bytes
+package-icon extract-icon example.appxbundle icon.png
+```
+
+CI publishes native `package-icon` artifacts for Windows, Linux and macOS on every Rust change.
 
 ### Build
 
@@ -105,7 +128,30 @@ MIT — see [LICENSE](LICENSE). Third-party libraries keep their own licenses in
 
 ### 跨平台核心
 
-仓库已新增 [`rust/`](rust/README.md) workspace。首版支持 IPA/TIPA、HAP 元数据读取和原始图标提取，并内置压缩包安全限额；APK/APPX 与各系统 Shell 适配器仍在开发。详细方案见[跨平台路线图](docs/CROSS_PLATFORM_ROADMAP.md)。
+仓库已新增面向生产的 [`rust/`](rust/README.md) workspace。目前支持 IPA/TIPA、HAP、APPX、APPXBUNDLE 的元数据读取和原始图标提取；APK AXML/ARSC 与各系统 Shell 适配器是下一阶段。详细方案见[跨平台路线图](docs/CROSS_PLATFORM_ROADMAP.md)。
+
+当前验证状态：
+
+- Windows、Ubuntu、macOS 三平台 CI 构建已通过。
+- Windows GNU 本地 Release 构建通过 `cargo fmt`、7/7 测试、严格 Clippy（`-D warnings`）和 CLI 端到端验证。
+- 当前 Release CLI 约 490 KB；后续加入 APK 矢量渲染依赖后体积会增加。
+- 内置 ZIP 条目数、单条目大小和声明总解压量限制。
+
+```bash
+cd rust
+cargo build --release
+cargo test --workspace
+
+# 以 JSON 读取包信息
+package-icon inspect example.ipa
+package-icon inspect example.hap
+package-icon inspect example.appx
+
+# 按原始格式提取包内图标
+package-icon extract-icon example.appxbundle icon.png
+```
+
+每次 Rust 代码变更，CI 会生成 Windows、Linux、macOS 原生 `package-icon` 构建产物。
 
 ### 构建
 
