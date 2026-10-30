@@ -94,9 +94,25 @@ namespace SharpShell.SharpIconHandler
 
             try
             {
-                //  Set the large and small icons.
-                phiconLarge = GetIcon(false, iconSizeLarge).Handle;
-                phiconSmall = GetIcon(true, iconSizeSmall).Handle;
+                // Each output HICON must be independently owned by the caller.
+                // Some hosts (notably Edge's downloads page) destroy both handles.
+                // Returning the same cached Icon.Handle for large and small icons causes
+                // a native double-free and crashes the host process.
+                using (var largeIcon = GetIcon(false, iconSizeLarge))
+                using (var smallIcon = GetIcon(true, iconSizeSmall))
+                {
+                    phiconLarge = User32.CopyIcon(largeIcon.Handle);
+                    phiconSmall = User32.CopyIcon(smallIcon.Handle);
+                }
+
+                if (phiconLarge == IntPtr.Zero || phiconSmall == IntPtr.Zero)
+                {
+                    if (phiconLarge != IntPtr.Zero) User32.DestroyIcon(phiconLarge);
+                    if (phiconSmall != IntPtr.Zero) User32.DestroyIcon(phiconSmall);
+                    phiconLarge = IntPtr.Zero;
+                    phiconSmall = IntPtr.Zero;
+                    return WinError.S_FALSE;
+                }
             }
             catch (Exception exception)
             {

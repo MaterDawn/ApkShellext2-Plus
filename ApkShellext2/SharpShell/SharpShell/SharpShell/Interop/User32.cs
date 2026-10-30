@@ -66,6 +66,13 @@ namespace SharpShell.Interop
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern IntPtr LoadIcon(IntPtr hInstance, IntPtr lpIconName);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr CopyIcon(IntPtr hIcon);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool DestroyIcon(IntPtr hIcon);
+
         /// <summary>
         /// Converts an item identifier list to a file system path. (Note: SHGetPathFromIDList calls the ANSI version, must call SHGetPathFromIDListW for .NET)
         /// </summary>

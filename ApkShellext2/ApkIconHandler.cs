@@ -66,7 +66,18 @@ namespace ApkShellext2 {
                 }
             }
 
-            return Icon.FromHandle(Utility.ResizeBitmap(m_icon, new Size((int)iconSize, (int)iconSize)).GetHicon());
+            // Bitmap.GetHicon creates an unmanaged HICON. Icon.FromHandle does not own it,
+            // so clone the icon and destroy the temporary handle immediately.
+            using (Bitmap resized = Utility.ResizeBitmap(m_icon,
+                new Size((int)Math.Max(1, iconSize), (int)Math.Max(1, iconSize)))) {
+                IntPtr temporary = resized.GetHicon();
+                try {
+                    using (Icon wrapper = Icon.FromHandle(temporary))
+                        return (Icon)wrapper.Clone();
+                } finally {
+                    SharpShell.Interop.User32.DestroyIcon(temporary);
+                }
+            }
         }
 
         [CustomRegisterFunction]
